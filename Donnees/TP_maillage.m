@@ -1,7 +1,24 @@
 clear;
 close all;
-% Nombre d'images utilisees
-nb_images = 36; 
+clc;
+
+% Affichage des figures
+screen_size = get(0, 'ScreenSize');
+screen_width = screen_size(3);
+screen_height = screen_size(4);
+window_width = 0.7 * screen_width;
+window_height = 0.7 * screen_height;
+window_x = (screen_width - window_width) / 2;
+window_y = (screen_height - window_height) / 2;
+
+
+%% P0 - Affichage des images %%
+
+nb_images = 36;                         % Nombre d'images utilisees
+num_images = [1, 9, 17, 25];            % Numéro des images à afficher
+nb_images_plot = size(num_images, 2);   % Nombre d'image à afficher
+nbr_row_plot = 2;                       % Nombre de lignes pour l'affichage
+nbr_col_plot = 2;                       % Nombre de colones pour l'affichage
 
 % chargement des images
 for i = 1:nb_images
@@ -9,19 +26,31 @@ for i = 1:nb_images
         nom = sprintf('images/viff.00%d.ppm',i-1);
     else
         nom = sprintf('images/viff.0%d.ppm',i-1);
-    end;
+    end
     % im est une matrice de dimension 4 qui contient 
     % l'ensemble des images couleur de taille : nb_lignes x nb_colonnes x nb_canaux 
     % im est donc de dimension nb_lignes x nb_colonnes x nb_canaux x nb_images
     im(:,:,:,i) = imread(nom); 
-end;
+end
 
 % Affichage des images
-figure; 
-subplot(2,2,1); imshow(im(:,:,:,1)); title('Image 1');
-subplot(2,2,2); imshow(im(:,:,:,9)); title('Image 9');
-subplot(2,2,3); imshow(im(:,:,:,17)); title('Image 17');
-subplot(2,2,4); imshow(im(:,:,:,25)); title('Image 25');
+figure('Name', 'Parti 1 - Segmentation', 'Position', [window_x, window_y, window_width, window_height]);
+for i = 1:nb_images_plot
+    subplot(nbr_row_plot,nbr_col_plot,i);
+    imshow(im(:,:,:,num_images(i)));
+    title(sprintf('Image %d',num_images(i)));
+    hold on;
+end
+
+%% P1 - SEGMENTATION %%
+
+row = size(im, 1);  % Nombre de ligne
+col = size(im, 2);  % Nombre de collone
+N = row * col;      % Nombre de pixel
+racine_K = 10;      % La racine du nombre de points
+K = racine_K^2;     % Nombre de superpixel
+S = sqrt(N/K);      % Pas entre les superpixels
+m = 10;             % Poid de la position dans le calcul de la distence
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % A COMPLETER                                             %
@@ -30,7 +59,39 @@ subplot(2,2,4); imshow(im(:,:,:,25)); title('Image 25');
 % à chaque étape / à chaque itération                     %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-% ........................................................%
+% Calculs des positions des centres
+centers = zeros(K, 2);
+S_x = row/racine_K;
+S_y = col/racine_K;
+k = 1;
+for i = 0:racine_K-1
+    for j = 0:racine_K-1
+        centers(k,:) = [floor(S_x*(0.5 + i)) floor(S_y*(0.5 + j))];
+        k = k + 1;
+    end
+end
+
+
+while 1
+
+
+    % Afficher les centres et les 
+    for i = 1:nb_images_plot
+        subplot(nbr_row_plot,nbr_col_plot,i);
+        imshow(im(:,:,:,num_images(i)));
+        title(sprintf('Image %d',num_images(i)));
+        hold on;
+        subplot(nbr_row_plot,nbr_col_plot,i);
+        scatter(centers(:, 2), centers(:, 1), 'g', 'filled');
+        hold off;
+    end
+
+    break
+end
+
+
+
+
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -58,6 +119,9 @@ subplot(2,2,4); imshow(im(:,:,:,25)); title('Image 25');
 % subplot(2,2,2); ... ; title('Masque image 9');
 % subplot(2,2,3); ... ; title('Masque image 17');
 % subplot(2,2,4); ... ; title('Masque image 25');
+
+keyboard;
+%% P2 - Estimation surface %%
 
 % chargement des points 2D suivis 
 % pts de taille nb_points x (2 x nb_images)
