@@ -10,15 +10,15 @@ window_width = 0.7 * screen_width;
 window_height = 0.7 * screen_height;
 window_x = (screen_width - window_width) / 2;
 window_y = (screen_height - window_height) / 2;
-pause_time = 0.01;
+pause_time = 0.1;
 
 
 %% P0 - Affichage des images %%
 
 nb_images = 36;                             % Nombre d'images total
-num_images = [1, 9, 17, 25];                % Numéro des images à afficher
+num_images = [1, 9, 13, 17, 25, 29];        % Numéro des images à afficher
 nb_row_plot = 2;                            % Nombre de lignes pour l'affichage
-nb_col_plot = 2;                            % Nombre de colones pour l'affichage
+nb_col_plot = 3;                            % Nombre de colones pour l'affichage
 nb_images_plot = nb_row_plot*nb_col_plot;   % Nombre d'image à afficher
 
 % chargement des images
@@ -49,7 +49,7 @@ pause(pause_time);
 row = size(im, 1);  % Nombre de ligne
 col = size(im, 2);  % Nombre de collone
 N = row * col;      % Nombre de pixel
-racine_K = 7;       % La racine du nombre de points
+racine_K = 10;      % La racine du nombre de points
 K = racine_K^2;     % Nombre de superpixel
 S = sqrt(N/K);      % Pas entre les superpixels
 max_iter = 10;      % Nombre maximum d'iteration
@@ -90,7 +90,7 @@ for plot = 1:nb_images_plot
     mem_centers = zeros(size(centers));
     new_centers = mem_centers;
     
-    while iter <= max_iter & mem_centers~=centers
+    while iter <= max_iter && ~isequal(mem_centers, centers)
     
         % Attribuer les labels
         for i = 1:row
