@@ -10,16 +10,16 @@ window_width = 0.7 * screen_width;
 window_height = 0.7 * screen_height;
 window_x = (screen_width - window_width) / 2;
 window_y = (screen_height - window_height) / 2;
+window_set = [window_x, window_y, window_width, window_height];
 pause_time = 0.1;
 
 
 %% P0 - Affichage des images %%
 
 nb_images = 36;                             % Nombre d'images total
-%num_images = [1, 9, 13, 17, 25, 29];        % Numéro des images à afficher
-num_images = 1;
-nb_row_plot = 1;                            % Nombre de lignes pour l'affichage
-nb_col_plot = 1;                            % Nombre de colones pour l'affichage
+num_images = [1, 9, 17, 29];                % Numéro des images à afficher
+nb_row_plot = 2;                            % Nombre de lignes pour l'affichage
+nb_col_plot = 2;                            % Nombre de colones pour l'affichage
 nb_images_plot = nb_row_plot*nb_col_plot;   % Nombre d'image à afficher
 
 % chargement des images
@@ -36,7 +36,7 @@ for i = 1:nb_images
 end
 
 % Affichage des images
-figure('Name', 'Parti 1 - Segmentation', 'Position', [window_x, window_y, window_width, window_height]);
+figure('Name', 'Parti 1 - Segmentation', 'Position', window_set);
 for i = 1:nb_images_plot
     subplot(nb_row_plot,nb_col_plot,i);
     imshow(im(:,:,:,num_images(i)));
@@ -54,15 +54,12 @@ racine_K = 10;      % La racine du nombre de points
 K = racine_K^2;     % Nombre de superpixel
 S = sqrt(N/K);      % Pas entre les superpixels
 max_iter = 5;       % Nombre maximum d'iteration
-m = 0.5;              % Poid de la position dans le calcul de la distence
+m = 1;              % Poid de la position dans le calcul de la distence
+coef = m/S;         % Coef pour distance                            
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% A COMPLETER                                             %
 % Calculs des superpixels                                 %
-% Conseil : afficher les germes + les régions             %
-% à chaque étape / à chaque itération                     %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
 
 for plot = 1:nb_images_plot
 
@@ -100,27 +97,7 @@ for plot = 1:nb_images_plot
         % Attribuer les labels
         for i = 1:row
             for j = 1:col
-                r = double(im(i,j,1,num_image));
-                g = double(im(i,j,2,num_image));
-                b = double(im(i,j,3,num_image));
-                prop = [i j r g b];
-                % Trouver le centre le plus proche
-                min_dist = +inf;
-                label = 1;
-                for k = 1:K
-                    dist_xy = sqrt((i-centers(k,1))^2 + (j-centers(k,2))^2);
-                    dist_rgb = 0;
-                    for c = 1:3
-                        color = im(floor(centers(k,1)),floor(centers(k,2)),c,num_image);
-                        dist_rgb = dist_rgb + (prop(c+2)-double(color))^2;
-                    end
-                    dist_rgb = sqrt(dist_rgb);
-                    dist = dist_rgb + m/S * dist_xy;
-                    if dist < min_dist
-                        min_dist = dist;
-                        label = k;
-                    end
-                end
+                [label, prop] = plusProcheCentre(i, j, coef, im, num_image, K, centers);
                 labels(i, j) = label;
                 new_centers(label, :) = new_centers(label, :) + prop;
             end
@@ -135,7 +112,7 @@ for plot = 1:nb_images_plot
             end
         end
     
-        % Mise a jour des centres
+        % Mise a jour des centres et condition d'arrêt
         arret = iter > max_iter || isequal(new_centers, centers);
         iter = iter + 1;
         centers = new_centers;
@@ -143,20 +120,23 @@ for plot = 1:nb_images_plot
         % Afficher les centres et les superpixels
         imshow(im(:,:,:,num_image));
         scatter(centers(:, 2), centers(:, 1), 'g', 'filled');
-        pause()
+        pause(pause_time);
             
     end
 
     % Afficher les contours complets
-    % contour(labels, 2*S, 'LineColor', 'g', 'LineWidth', 0.5);
+    contour(labels, 1:K, 'LineColor', 'g', 'LineWidth', 0.5);
+    pause(3);
 
-    % Binarisation
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    % Binarisation de l'image à partir des superpixels        %
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
     bin = zeros(row, col);
     for k = 1:K
         r = centers(k, 3);
-        g = centers(k, 4);
         b = centers(k, 5);
-        if r > b && r~=0
+        if r > b
             bin(labels == k) = 255;
         end
     end
@@ -167,10 +147,7 @@ for plot = 1:nb_images_plot
 end
 
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% A COMPLETER                                             %
-% Binarisation de l'image à partir des superpixels        %
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 
 % ........................................................%
 

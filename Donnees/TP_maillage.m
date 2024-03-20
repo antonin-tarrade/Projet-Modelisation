@@ -10,14 +10,14 @@ window_width = 0.7 * screen_width;
 window_height = 0.7 * screen_height;
 window_x = (screen_width - window_width) / 2;
 window_y = (screen_height - window_height) / 2;
-pause_time = 0.01;
+window_set = [window_x, window_y, window_width, window_height];
+pause_time = 0.1;
 
 
 %% P0 - Affichage des images %%
 
 nb_images = 36;                             % Nombre d'images total
 num_images = [1, 9, 17, 29];                % Numéro des images à afficher
-%num_images = 1;
 nb_row_plot = 2;                            % Nombre de lignes pour l'affichage
 nb_col_plot = 2;                            % Nombre de colones pour l'affichage
 nb_images_plot = nb_row_plot*nb_col_plot;   % Nombre d'image à afficher
@@ -36,7 +36,7 @@ for i = 1:nb_images
 end
 
 % Affichage des images
-figure('Name', 'Parti 1 - Segmentation', 'Position', [window_x, window_y, window_width, window_height]);
+figure('Name', 'Parti 1 - Segmentation', 'Position', window_set);
 for i = 1:nb_images_plot
     subplot(nb_row_plot,nb_col_plot,i);
     imshow(im(:,:,:,num_images(i)));
@@ -47,23 +47,19 @@ pause(pause_time);
 
 %% P1 - SEGMENTATION %%
 
-row = size(im, 1);  % Nombre de ligne
-col = size(im, 2);  % Nombre de collone
-N = row * col;      % Nombre de pixel
-racine_K = 10;      % La racine du nombre de points
-K = racine_K^2;     % Nombre de superpixel
-S = sqrt(N/K);      % Pas entre les superpixels
-max_iter = 5;       % Nombre maximum d'iteration
-m = 1;              % Poid de la position dans le calcul de la distence
-coef = m/S;         % Coef pour distance                            
+row = size(im, 1);      % Nombre de ligne
+col = size(im, 2);      % Nombre de collone
+N = row * col;          % Nombre de pixel
+racine_K = 10;          % La racine du nombre de points
+K = racine_K^2;         % Nombre de superpixel
+S = sqrt(N/K);          % Pas entre les superpixels
+max_iter = 5;           % Nombre maximum d'iteration
+m = 1;                  % Poid de la position dans le calcul de la distence
+coef = m/S;             % Coef pour distance                            
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% A COMPLETER                                             %
 % Calculs des superpixels                                 %
-% Conseil : afficher les germes + les régions             %
-% à chaque étape / à chaque itération                     %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
 
 for plot = 1:nb_images_plot
 
@@ -74,21 +70,7 @@ for plot = 1:nb_images_plot
     hold on;
 
     % Initializer les positions des centres
-    centers = zeros(K, 5);
-    S_x = row/racine_K;
-    S_y = col/racine_K;
-    k = 1;
-    for i = 0:racine_K-1
-        for j = 0:racine_K-1
-            x = floor(S_x*(0.5 + i));
-            y = floor(S_y*(0.5 + j));
-            r = double(im(x,y,1,num_image));
-            g = double(im(x,y,2,num_image));
-            b = double(im(x,y,3,num_image));
-            centers(k,:) = [x y r g b];
-            k = k + 1;
-        end
-    end
+    centers = init_centers(racine_K, K, im, num_image);
 
     % Boucle pour obtenir les supers pixels
     labels = zeros(row, col);
@@ -116,7 +98,7 @@ for plot = 1:nb_images_plot
             end
         end
     
-        % Mise a jour des centres
+        % Mise a jour des centres et condition d'arrêt
         arret = iter > max_iter || isequal(new_centers, centers);
         iter = iter + 1;
         centers = new_centers;
@@ -130,13 +112,15 @@ for plot = 1:nb_images_plot
 
     % Afficher les contours complets
     contour(labels, 1:K, 'LineColor', 'g', 'LineWidth', 0.5);
-    pause(3);
+    pause(pause_time);
 
-    % Binarisation
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    % Binarisation de l'image à partir des superpixels        %
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
     bin = zeros(row, col);
     for k = 1:K
         r = centers(k, 3);
-        g = centers(k, 4);
         b = centers(k, 5);
         if r > b
             bin(labels == k) = 255;
@@ -149,10 +133,7 @@ for plot = 1:nb_images_plot
 end
 
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% A COMPLETER                                             %
-% Binarisation de l'image à partir des superpixels        %
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 
 % ........................................................%
 
