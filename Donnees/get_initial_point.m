@@ -9,7 +9,7 @@ init_p_found = false;
 % imshow(img_binaire);
 % hold on;
 while ~init_p_found && i < nb_row
-    scatter(j,i,'red');
+    scatter(j,i,'red','.');
     init_p_found = ( img_binaire(i,j) ~= 0);
     j = j+1;
     if j > nb_col 
