@@ -17,7 +17,7 @@ pause_time = 0.1;
 %% P0 - Affichage des images %%
 
 nb_images = 36;                             % Nombre d'images total
-num_images = [1, 9, 17, 29];                % Numéro des images à afficher
+num_images = [1, 36, 5, 29];                % Numéro des images à afficher
 nb_row_plot = 2;                            % Nombre de lignes pour l'affichage
 nb_col_plot = 2;                            % Nombre de colones pour l'affichage
 nb_images_plot = nb_row_plot*nb_col_plot;   % Nombre d'image à afficher
@@ -47,7 +47,7 @@ pause(pause_time);
 row = size(im, 1);      % Nombre de ligne
 col = size(im, 2);      % Nombre de collone
 N = row * col;          % Nombre de pixel
-racine_K = 6;           % La racine du nombre de points
+racine_K = 5;           % La racine du nombre de points
 K = racine_K^2;         % Nombre de superpixel
 S = sqrt(N/K);          % Pas entre les superpixels
 max_iter = 5;           % Nombre maximum d'iteration

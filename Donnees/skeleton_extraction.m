@@ -10,7 +10,7 @@ function [contour,voronoi_vertices,skeleton] = skeleton_extraction(img_binaire)
 
     P = get_initial_point(img_binaire);
     
-    contour = bwtraceboundary(img_binaire,P,"S");
+    contour = bwtraceboundary(img_binaire,P,"S",8);
 
    
     dt = delaunayTriangulation(contour(:,2),contour(:,1));
