@@ -121,6 +121,11 @@ for current_plot = 1:nb_images_plot
     end
 
     imshow(bin)
+    [boundary,vertices,skeleton] = skeleton_extraction(bin);
+    keyboard;
+    plot(boundary(:,1), boundary(:,2), 'g', 'LineWidth', 2);
+    scatter(vertices(:,1), vertices(:,2), 'm', 'filled');
+    plot(skeleton(:,1), skeleton(:,2), 'b', 'LineWidth', 1);
     hold off;
 
 end
