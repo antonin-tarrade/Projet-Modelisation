@@ -29,9 +29,6 @@ for i = 1:nb_images
     else
         nom = sprintf('images/viff.0%d.ppm',i-1);
     end
-    % im est une matrice de dimension 4 qui contient 
-    % l'ensemble des images couleur de taille : nb_lignes x nb_colonnes x nb_canaux 
-    % im est donc de dimension nb_lignes x nb_colonnes x nb_canaux x nb_images
     im(:,:,:,i) = imread(nom);
 end
 
@@ -50,29 +47,29 @@ pause(pause_time);
 row = size(im, 1);      % Nombre de ligne
 col = size(im, 2);      % Nombre de collone
 N = row * col;          % Nombre de pixel
-racine_K = 10;          % La racine du nombre de points
+racine_K = 6;           % La racine du nombre de points
 K = racine_K^2;         % Nombre de superpixel
 S = sqrt(N/K);          % Pas entre les superpixels
 max_iter = 5;           % Nombre maximum d'iteration
-m = 1;                  % Poid de la position dans le calcul de la distence
+m = 5;                  % Poid de la position dans le calcul de la distence
 coef = m/S;             % Coef pour distance                            
+
+% Boucle sur les images a afficher
+for current_plot = 1:nb_images_plot
+
+    num_image = num_images(current_plot);
+    subplot(nb_row_plot,nb_col_plot,current_plot);
+    imshow(im(:,:,:,num_image));
+    title(sprintf('Image %d',num_image));
+    hold on;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Calculs des superpixels                                 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-for plot = 1:nb_images_plot
-
-    num_image = num_images(plot);
-    subplot(nb_row_plot,nb_col_plot,plot);
-    imshow(im(:,:,:,num_image));
-    title(sprintf('Image %d',num_image));
-    hold on;
-
     % Initializer les positions des centres
     centers = init_centers(racine_K, K, im, num_image);
 
-    % Boucle pour obtenir les supers pixels
     labels = zeros(row, col);
     iter = 1;
     new_centers = zeros(size(centers));
@@ -106,18 +103,14 @@ for plot = 1:nb_images_plot
         % Afficher les centres et les superpixels
         imshow(im(:,:,:,num_image));
         scatter(centers(:, 2), centers(:, 1), 'g', 'filled');
+        contour(labels, 1:K, 'LineColor', 'g', 'LineWidth', 0.5);
         pause(pause_time);
             
     end
 
-    % Afficher les contours complets
-    contour(labels, 1:K, 'LineColor', 'g', 'LineWidth', 0.5);
-    pause(pause_time);
-
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    % Binarisation de l'image à partir des superpixels        %
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Binarisation de l'image à partir des superpixels        %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     bin = zeros(row, col);
     for k = 1:K
         r = centers(k, 3);
@@ -132,31 +125,10 @@ for plot = 1:nb_images_plot
 
 end
 
-
-
-
-% ........................................................%
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% A FAIRE SI VOUS UTILISEZ LES MASQUES BINAIRES FOURNIS   %
-% Chargement des masques binaires                         %
-% de taille nb_lignes x nb_colonnes x nb_images           %
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% ... 
-
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% A DECOMMENTER ET COMPLETER                              %
-% quand vous aurez les images segmentées                  %
-% Affichage des masques associes                          %
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% figure;
-% subplot(2,2,1); ... ; title('Masque image 1');
-% subplot(2,2,2); ... ; title('Masque image 9');
-% subplot(2,2,3); ... ; title('Masque image 17');
-% subplot(2,2,4); ... ; title('Masque image 25');
-
 keyboard;
+
+
+
 %% P2 - Estimation surface %%
 
 % chargement des points 2D suivis 
