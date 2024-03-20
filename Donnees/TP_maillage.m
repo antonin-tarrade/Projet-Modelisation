@@ -103,7 +103,7 @@ for current_plot = 1:nb_images_plot
         % Afficher les centres et les superpixels
         imshow(im(:,:,:,num_image));
         scatter(centers(:, 2), centers(:, 1), 'g', 'filled');
-        contour(labels, 1:K, 'LineColor', 'g', 'LineWidth', 0.5);
+%         contour(labels, 1:K, 'LineColor', 'g', 'LineWidth', 0.5);
         pause(pause_time);
             
     end
@@ -122,10 +122,9 @@ for current_plot = 1:nb_images_plot
 
     imshow(bin)
     [boundary,vertices,skeleton] = skeleton_extraction(bin);
-    keyboard;
-    plot(boundary(:,1), boundary(:,2), 'g', 'LineWidth', 2);
-    scatter(vertices(:,1), vertices(:,2), 'm', 'filled');
-    plot(skeleton(:,1), skeleton(:,2), 'b', 'LineWidth', 1);
+    plot(boundary(:,2), boundary(:,1), 'g', 'LineWidth', 2);
+    scatter(vertices(:,2), vertices(:,1), 'm', 'filled');
+    plot(skeleton(:,2), skeleton(:,1), 'b', 'LineWidth', 1);
     hold off;
 
 end
