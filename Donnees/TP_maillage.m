@@ -17,7 +17,7 @@ pause_time = 0.1;
 %% P0 - Affichage des images %%
 
 nb_images = 36;                             % Nombre d'images total
-num_images = [1, 36, 5, 29];                % Numéro des images à afficher
+num_images = [1, 9 , 25, 36];                % Numéro des images à afficher
 nb_row_plot = 2;                            % Nombre de lignes pour l'affichage
 nb_col_plot = 2;                            % Nombre de colones pour l'affichage
 nb_images_plot = nb_row_plot*nb_col_plot;   % Nombre d'image à afficher

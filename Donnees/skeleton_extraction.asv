@@ -24,12 +24,12 @@ function [contour,voronoi_vertices,skeleton] = skeleton_extraction(img_binaire)
      voronoi_vertices = V_final;
      
     n_region = size(R,1);
-    edges_sorted = [];
+    edges_sorted = zeros(n_region,2);
     for i = 1:n_region
         indices = R{i};  
         edges = sort_position(img_binaire,V(indices,:));
-%       plot(edges(:,2),edges(:,1),'blue');
-        edges_sorted = [edges_sorted; edges];
+%         plot(edges(:,2),edges(:,1),'blue');
+        edges_sorted(i:i+size(edges,1)-1,:) = edges;
     end
 
     skeleton = edges_sorted;
