@@ -198,7 +198,7 @@ nb_barycentres = size(T.Triangulation, 1);
 for i = 1:size(T,1)
     % Calcul des barycentres differents en fonction des poids differents
     % En commencant par le barycentre avec poids uniformes
-    C_g(:,i,1) = barycentre(T, i, poids);
+    C_g(:,i,1) = barycentre(T, i)
 end
 
 
