@@ -4,7 +4,7 @@ points = T.X(T.Triangulation(i,:),:);
 
 points_pond = points .* poids';
 
-barycentre = sum(points_pond, 1) / 4;
+barycentre = sum(points_pond, 1);
 
 keyboard
 

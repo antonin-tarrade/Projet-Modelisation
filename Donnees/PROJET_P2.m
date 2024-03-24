@@ -42,97 +42,6 @@ for i = 1:nb_images_plot
 end
 pause(pause_time);
 
-
-%% P1 - SEGMENTATION %%
-
-row = size(im, 1);      % Nombre de ligne
-col = size(im, 2);      % Nombre de collone
-N = row * col;          % Nombre de pixel
-racine_K = 5;           % La racine du nombre de points
-K = racine_K^2;         % Nombre de superpixel
-S = sqrt(N/K);          % Pas entre les superpixels
-max_iter = 5;           % Nombre maximum d'iteration
-m = 1;                  % Poid de la position dans le calcul de la distence
-coef = m/S;             % Coef pour distance
-
-% Boucle sur les images a afficher
-for current_plot = 1:nb_images_plot
-
-    num_image = num_images(current_plot);
-    subplot(nb_row_plot,nb_col_plot,current_plot);
-    imshow(im(:,:,:,num_image));
-    title(sprintf('Image %d',num_image));
-    hold on;
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% Calculs des superpixels                                 %
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-    % Initializer les positions des centres
-    centers = init_centers(racine_K, K, im, num_image);
-
-    labels = zeros(row, col);
-    iter = 1;
-    new_centers = zeros(size(centers));
-    arret = false;
-    
-    while ~arret
-
-        % Attribuer les labels
-        for i = 1:row
-            for j = 1:col
-                [label, prop] = plusProcheCentre(i, j, coef, im, num_image, K, centers);
-                labels(i, j) = label;
-                new_centers(label, :) = new_centers(label, :) + prop;
-            end
-        end
-    
-        % Faire la moyenne pour les nouveaux centres
-        for k = 1:K
-            cluster_indices = find(labels == k);
-            num_elements = numel(cluster_indices);
-            if num_elements > 0
-                new_centers(k, :) = new_centers(k, :) / num_elements;
-            end
-        end
-    
-        % Mise a jour des centres et condition d'arrêt
-        arret = iter > max_iter || isequal(new_centers, centers);
-        iter = iter + 1;
-        centers = new_centers;
-    
-        % Afficher les centres et les superpixels
-        imshow(im(:,:,:,num_image));
-        scatter(centers(:, 2), centers(:, 1), 'g', 'filled');
-        contour(labels, 1:K, 'LineColor', 'g', 'LineWidth', 0.5);
-        pause(pause_time);
-            
-    end
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% Binarisation de l'image à partir des superpixels        %
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    bin = zeros(row, col);
-    for k = 1:K
-        r = centers(k, 3);
-        b = centers(k, 5);
-        if r > b
-            bin(labels == k) = 255;
-        end
-    end
-    imshow(bin)
-
-    % Calcul et affichage des skelettes
-    [boundary,vertices,skeleton] = skeleton_extraction(bin);
-    plot(boundary(:,2), boundary(:,1), 'g', 'LineWidth', 1);
-    scatter(vertices(:,2), vertices(:,1), 'm', '.');
-    plot(skeleton(:,2), skeleton(:,1), 'b', 'LineWidth', 1);
-
-    hold off;
-end
-
-keyboard;
-
 %% P2 - Estimation surface %%
 
 % chargement des points 2D suivis 
@@ -155,7 +64,7 @@ for i = 1:size(pts,1)
     % Recuperation des ensembles de points apparies
     l = find(pts(i,1:2:end)~=-1);
     % Verification qu'il existe bien des points apparies dans cette image
-    if size(l,2) > 1 & max(l)-min(l) > 1 & max(l)-min(l) < 36
+    if size(l,2) > 1 && max(l)-min(l) > 1 && max(l)-min(l) < 36
         A = [];
         R = 0;
         G = 0;
@@ -193,29 +102,30 @@ tetramesh(T);
 
 %% Calcul des barycentres de chacun des tetraedres
 load('masks.mat')
+
 poids = ones(1, 4) * 0.25;
-nb_barycentres = size(T.Triangulation, 1);
+nb_barycentres = size(T, 1);
 for i = 1:size(T,1)
     % Calcul des barycentres differents en fonction des poids differents
     % En commencant par le barycentre avec poids uniformes
-    C_g(:,i,1) = barycentre(T, i)
+    C_g(:,i,1) = barycentre(T, i, poids);
 end
 
 
 % A DECOMMENTER POUR VERIFICATION 
 % A RE-COMMENTER UNE FOIS LA VERIFICATION FAITE
-Visualisation pour vérifier le bon calcul des barycentres
-for i = 1:nb_images
-   for k = 1:nb_barycentres
-       o = P{i}*C_g(:,:,k);
-       o = o./repmat(o(3,:),3,1);
-       imshow(im_mask(:,:,i));
-       hold on;
-       plot(o(2,:),o(1,:),'rx');
-       pause;
-       close;
-   end
-end
+% Visualisation pour vérifier le bon calcul des barycentres
+% for i = 1:nb_images
+%    for k = 1:nb_barycentres
+%        o = P{i}*C_g(:,:,k);
+%        o = o./repmat(o(3,:),3,1);
+%        imshow(im_mask(:,:,i));
+%        hold on;
+%        plot(o(2,:),o(1,:),'rx');
+%        pause;
+%        close;
+%    end
+% end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % A DECOMMENTER ET A COMPLETER %
