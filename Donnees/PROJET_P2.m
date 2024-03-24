@@ -24,6 +24,9 @@ for i = 1:nb_images
     im(:,:,:,i) = imread(nom);
 end
 
+% Chargement des masques
+load('masks.mat')
+
 
 %% P2 - Estimation surface %%
 
@@ -83,13 +86,13 @@ axis equal;
 
 % Affichage de la tetraedrisation de Delaunay
 T = DelaunayTri(X(1:3,:)');
+nb_tetra = size(T,1);
 fprintf('Tetraedrisation terminee : %d tetraedres trouves. \n',size(T,1));
-figure;
-tetramesh(T);
+% figure;
+% tetramesh(T);
 
 
 %% Calcul des barycentres de chacun des tetraedres
-load('masks.mat')
 
 poid_1 = [0.25, 0.25, 0.25, 0.25];
 poid_2 = [0.85, 0.05, 0.05, 0.05];
@@ -98,39 +101,36 @@ poid_4 = [0.05, 0.05, 0.85, 0.05];
 poid_5 = [0.05, 0.05, 0.05, 0.85];
 poids = [poid_1; poid_2; poid_3; poid_4; poid_5];
 
-nb_barycentres = size(poids, 1);
+nb_barycentres = size(poids,1);
+
+C_g = zeros(4, nb_tetra, nb_barycentres);
 
 for num_poid = 1:nb_barycentres
-    for i = 1:size(T,1)
+    for i = 1:nb_tetra
         % Calcul des barycentres differents en fonction des poids differents
         % En commencant par le barycentre avec poids uniformes
-        points = T.X(T.Triangulation(i,:),:)
-        points_pond = points .* poids(num_poid,:)'
+        points = [T.X(T.Triangulation(i,:),:) ones(4, 1)];
+        points_pond = points .* poids(num_poid,:)';
         C_g(:,i,num_poid) = sum(points_pond, 1);
-        pause
     end
 end
 
-% A DECOMMENTER POUR VERIFICATION 
-% A RE-COMMENTER UNE FOIS LA VERIFICATION FAITE
-% Visualisation pour vérifier le bon calcul des barycentres
-% for i = 1:nb_images
-%    for k = 1:nb_barycentres
-%        o = P{i}*C_g(:,:,k);
-%        o = o./repmat(o(3,:),3,1);
-%        imshow(im_mask(:,:,i));
-%        hold on;
-%        plot(o(2,:),o(1,:),'rx');
-%        pause;
-%        close;
-%    end
-% end
+%% Visualisation pour vérifier le bon calcul des barycentres
+figure;
+hold on;
+for i = 1:nb_images
+   for k = 1:nb_barycentres
+       o = P{i} * C_g(:,:,k);
+       o = o./repmat(o(3,:),3,1);
+       imshow(masks(:,:,i));
+       hold on;
+       plot(o(2,:),o(1,:),'rx');
+       pause(0.1);
+   end
+end
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% A DECOMMENTER ET A COMPLETER %
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Copie de la triangulation pour pouvoir supprimer des tetraedres
-% tri=T.Triangulation;
+tri = T.Triangulation;
 % Retrait des tetraedres dont au moins un des barycentres 
 % ne se trouvent pas dans au moins un des masques des images de travail
 % Pour chaque barycentre
