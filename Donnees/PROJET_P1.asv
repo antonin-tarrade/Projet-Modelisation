@@ -25,7 +25,7 @@ for i = 1:nb_images
 end
 
 
-%% Affichage des images %%
+%% P0 - Affichage des images %%
 num_images = [1, 9, 17, 25];                % Numéro des images à afficher
 nb_row_plot = 2;                            % Nombre de lignes pour l'affichage
 nb_col_plot = 2;                            % Nombre de colones pour l'affichage

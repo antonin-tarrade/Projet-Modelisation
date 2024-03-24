@@ -1,9 +1,9 @@
-nb_images = 36;                     % Nombre d'images total
-num_images = 1:36;                  % Numéro des images à afficher
-nb_images_plot = nb_images;         % Nombre d'image à afficher
-compute_skeleton = false;           % Calculer ou non les squelette
+clear;
+close all;
+clc;
 
 % chargement des images
+nb_images = 36;
 for i = 1:nb_images
     if i<=10
         nom = sprintf('images/viff.00%d.ppm',i-1);
@@ -13,21 +13,25 @@ for i = 1:nb_images
     im(:,:,:,i) = imread(nom);
 end
 
-% SEGMENTATION %
+nb_images_plot = 36;                % Nombre d'image à afficher
+num_images = 1:nb_images_plot;      % Numéro des images à afficher
+
+%% SEGMENTATION %%
 
 row = size(im, 1);      % Nombre de ligne
 col = size(im, 2);      % Nombre de collone
 N = row * col;          % Nombre de pixel
-racine_K = 5;           % La racine du nombre de points
+racine_K = 10;          % La racine du nombre de points
 K = racine_K^2;         % Nombre de superpixel
 S = sqrt(N/K);          % Pas entre les superpixels
 max_iter = 5;           % Nombre maximum d'iteration
-m = 1;                  % Poid de la position dans le calcul de la distence
-coef = m/S;             % Coef pour distance
+m = 0.5;                % Poid de la position dans le calcul de la distence
 
 masks = zeros(row, col, nb_images);    % Les masques binaires
+figure('Name', 'Segmentations Binaires');
+hold on;
 
-% Boucle sur les images
+% Boucle sur les images a afficher
 for current_plot = 1:nb_images_plot
 
     num_image = num_images(current_plot);
@@ -39,35 +43,19 @@ for current_plot = 1:nb_images_plot
     % Initializer les positions des centres
     centers = init_centers(racine_K, K, im, num_image);
 
-    labels = zeros(row, col);
     iter = 1;
-    new_centers = zeros(size(centers));
     arret = false;
     
     while ~arret
 
-        % Attribuer les labels
-        for i = 1:row
-            for j = 1:col
-                [label, prop] = plusProcheCentre(i, j, coef, im, num_image, K, centers);
-                labels(i, j) = label;
-                new_centers(label, :) = new_centers(label, :) + prop;
-            end
-        end
+        % Attribuer les labels et calculer les nouveaux centres
+        [labels, new_centers] = plusProcheCentre(S, m, im, num_image, K, centers);
     
-        % Faire la moyenne pour les nouveaux centres
-        for k = 1:K
-            cluster_indices = find(labels == k);
-            num_elements = numel(cluster_indices);
-            if num_elements > 0
-                new_centers(k, :) = new_centers(k, :) / num_elements;
-            end
-        end
-    
-        % Mise a jour des centres et condition d'arrêt
+        % Condition d'arrêt
         arret = iter > max_iter || isequal(new_centers, centers);
         iter = iter + 1;
-        centers = new_centers;  
+        centers = new_centers;
+            
     end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -77,15 +65,21 @@ for current_plot = 1:nb_images_plot
     for k = 1:K
         r = centers(k, 3);
         b = centers(k, 5);
-        if r > b
+        if r > b && r > 30
             bin(labels == k) = 255;
         end
     end
 
     masks(:,:,current_plot) = bin;
-    fprintf('%d', current_plot);
-
+    imshow(bin);
+    clc;
+    fprintf('%d / %d\n', current_plot, nb_images_plot);
+    
 end
 
+hold off;
+
 save('masks.mat', 'masks');
+
+
 

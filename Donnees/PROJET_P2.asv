@@ -98,18 +98,14 @@ poid_4 = [0.05, 0.05, 0.85, 0.05];
 poid_5 = [0.05, 0.05, 0.05, 0.85];
 poids = [poid_1; poid_2; poid_3; poid_4; poid_5];
 
-nb_barycentres = size(poids, 1);
-
-for num_poid = 1:nb_barycentres
+nb_barycentres = size(T, 1);
+for
     for i = 1:size(T,1)
         % Calcul des barycentres differents en fonction des poids differents
         % En commencant par le barycentre avec poids uniformes
-        points = T.X(T.Triangulation(i,:),:)
-        points_pond = points .* poids(num_poid,:)'
-        C_g(:,i,num_poid) = sum(points_pond, 1);
-        pause
+        C_g(:,i,1) = barycentre(T, i, poids);
     end
-end
+
 
 % A DECOMMENTER POUR VERIFICATION 
 % A RE-COMMENTER UNE FOIS LA VERIFICATION FAITE
