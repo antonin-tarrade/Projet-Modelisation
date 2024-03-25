@@ -116,7 +116,7 @@ for num_poid = 1:nb_barycentres
 end
 
 
-%% Suppresion des tetraedres superflus
+%% 4 - Suppresion des tetraedres superflus
 % Copie de la triangulation pour pouvoir supprimer des tetraedres
 tri = T.Triangulation;
 % Retrait des tetraedres dont au moins un des barycentres 
@@ -148,7 +148,7 @@ for i = 1:nb_images
        % mise a jour par reduction des presences des barycentres
        centers_in(~out_of_range_indices) = centers_in(~out_of_range_indices) | visualisation;
    
-% Visualisation pour vérifier le bon calcul des barycentres
+       % Visualisation pour vérifier le bon calcul des barycentres
        imshow(mask); 
        hold on;
        plot(o(2,~visualisation),o(1,~visualisation),'rx');
