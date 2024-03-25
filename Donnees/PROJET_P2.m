@@ -115,35 +115,57 @@ for num_poid = 1:nb_barycentres
     end
 end
 
-%% 4 - Visualisation pour vérifier le bon calcul des barycentres
-figure;
-for i = 1:nb_images
-   for k = 1:nb_barycentres
-       o = P{i} * C_g(:,:,k);
-       o = o./repmat(o(3,:),3,1);
-       imshow(masks(:,:,i));
-       hold on;
-       plot(o(2,:),o(1,:),'rx');
-       hold off;
-       pause(0.1);
-   end
-end
 
-
-%% 5 - Copie de la triangulation pour pouvoir supprimer des tetraedres
+%% Suppresion des tetraedres superflus
+% Copie de la triangulation pour pouvoir supprimer des tetraedres
 tri = T.Triangulation;
 % Retrait des tetraedres dont au moins un des barycentres 
 % ne se trouvent pas dans au moins un des masques des images de travail
-% Pour chaque barycentre
-% for k=1:nb_barycentres
-% ...
+
+
+% matrice binaire representant la presence du projete des barycentre sur au
+% moins un des masques pour au moins un des poids
+centers_in = false(1,size(tri,1)); 
+figure;
+for i = 1:nb_images
+   mask = masks(:,:,i);
+   for k = 1:nb_barycentres
+       
+       o = P{i} * C_g(:,:,k);
+       o = round(o./repmat(o(3,:),3,1));
+
+       % on retire les les barycentres mals projetes
+       out_of_range_indices = o(1,:) < 1 | o(1,:) > size(mask, 1) | o(2,:) < 1 | o(2,:) > size(mask, 2);
+
+       o(:, out_of_range_indices) = [];
+
+       % calcul des indices des centres present sur le masque courant
+       indices = sub2ind(size(mask),o(1,:),o(2,:)); 
+       
+       % on met en cache la presence des centres courant pour l'affichage
+       visualisation = logical(mask(indices)); 
+       
+       % mise a jour par reduction des presences des barycentres
+       centers_in(~out_of_range_indices) = centers_in(~out_of_range_indices) | visualisation;
+   
+% Visualisation pour vérifier le bon calcul des barycentres
+       imshow(mask); 
+       hold on;
+       plot(o(2,~visualisation),o(1,~visualisation),'rx');
+       plot(o(2,visualisation),o(1,visualisation),'gx');
+       pause(0.1)
+   end
+   hold off;
+   pause(0.1);
+end
+
+tri(~centers_in',:)= [];
 
 % A DECOMMENTER POUR AFFICHER LE MAILLAGE RESULTAT
 % Affichage des tetraedres restants
-% fprintf('Retrait des tetraedres exterieurs a la forme 3D termine : %d tetraedres restants. \n',size(Tbis,1));
-% figure;
-% trisurf(tri,X(1,:),X(2,:),X(3,:));
-
+fprintf('Retrait des tetraedres exterieurs a la forme 3D termine : %d tetraedres restants. \n',size(tri,1));
+figure;
+trisurf(tri,X(1,:),X(2,:),X(3,:));
 
 % Sauvegarde des donnees
 save("donnee_pour_P3.mat")
