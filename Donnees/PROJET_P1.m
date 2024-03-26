@@ -94,10 +94,6 @@ for current_plot = 1:nb_images_plot
             
     end
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% Renforcement de la connectivité des régions             %
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Binarisation de l'image à partir des superpixels        %
@@ -113,6 +109,7 @@ for current_plot = 1:nb_images_plot
     imshow(bin)
     pause(1);
 
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Extraction du squelette                                 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -122,10 +119,7 @@ for current_plot = 1:nb_images_plot
     scatter(vertices(:,2), vertices(:,1), 'm', '.');
     plot(skeleton(:,2), skeleton(:,1), 'b', 'LineWidth', 1);
     pause(1);
-
-    imshow(bin)
-    % plot(skeleton_int(:,2), skeleton_int(:,1), 'b', 'LineWidth', 1);
-    pause(1);
+    
 
     hold off;
 end

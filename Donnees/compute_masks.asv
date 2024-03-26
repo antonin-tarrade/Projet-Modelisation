@@ -2,105 +2,6 @@ clear;
 close all;
 clc;
 
-nb_images = 36;                     % Nombre d'images total
-num_images = 1:36;                  % Numéro des images à afficher
-nb_images_plot = nb_images;         % Nombre d'image à afficher
-compute_skeleton = false;           % Calculer ou non les squelette
-
-% chargement des images
-for i = 1:nb_images
-    if i<=10
-        nom = sprintf('images/viff.00%d.ppm',i-1);
-    else
-        nom = sprintf('images/viff.0%d.ppm',i-1);
-    end
-    im(:,:,:,i) = imread(nom);
-end
-
-% SEGMENTATION %
-
-row = size(im, 1);      % Nombre de ligne
-col = size(im, 2);      % Nombre de collone
-N = row * col;          % Nombre de pixel
-racine_K = 5;           % La racine du nombre de points
-K = racine_K^2;         % Nombre de superpixel
-S = sqrt(N/K);          % Pas entre les superpixels
-max_iter = 5;           % Nombre maximum d'iteration
-m = 1;                  % Poid de la position dans le calcul de la distence
-
-masks = zeros(row, col, nb_images);    % Les masques binaires
-figure; hold on;
-
-% Boucle sur les images
-for current_plot = 1:nb_images_plot
-
-    num_image = num_images(current_plot);
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% Calculs des superpixels                                 %
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-    % Initializer les positions des centres
-    centers = init_centers(racine_K, K, im, num_image);
-
-    labels = zeros(row, col);
-    iter = 1;
-    new_centers = zeros(size(centers));
-    arret = false;
-    
-    while ~arret
-
-        % Attribuer les labels
-        [labels, new_centers] = plusProcheCentre(S, m, im, num_image, K, centers);
-    
-        % Faire la moyenne pour les nouveaux centres
-        for k = 1:K
-            cluster_indices = find(labels == k);
-            num_elements = numel(cluster_indices);
-            if num_elements > 0
-                new_centers(k, :) = new_centers(k, :) / num_elements;
-            end
-        end
-    
-        % Mise a jour des centres et condition d'arrêt
-        arret = iter > max_iter || isequal(new_centers, centers);
-        iter = iter + 1;
-        centers = new_centers;  
-    end
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% Binarisation de l'image à partir des superpixels        %
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    bin = zeros(row, col);
-    for k = 1:K
-        r = centers(k, 3);
-        b = centers(k, 5);
-        if r > b
-            bin(labels == k) = 255;
-        end
-    end
-
-    masks(:,:,current_plot) = bin;
-    imshow(bin);
-    clc;
-    fprintf('%d / %d', current_plot, nb_images_plot);
-
-end
-
-hold off;
-
-save('masks.mat', 'masks');
-
-
-
-
-
-
-
-clear;
-close all;
-clc;
-
 % chargement des images
 nb_images = 36;
 for i = 1:nb_images
@@ -112,42 +13,38 @@ for i = 1:nb_images
     im(:,:,:,i) = imread(nom);
 end
 
+nb_images_plot = 36;                % Nombre d'image à afficher
+num_images = 1:nb_images_plot;      % Numéro des images à afficher
 
-%% P0 - Affichage des images %%
-num_images = [1, 9, 17, 25];                % Numéro des images à afficher
-nb_row_plot = 2;                            % Nombre de lignes pour l'affichage
-nb_col_plot = 2;                            % Nombre de colones pour l'affichage
-nb_images_plot = nb_row_plot*nb_col_plot;   % Nombre d'image à afficher
-
-%% P1 - SEGMENTATION %%
+%% SEGMENTATION %%
 
 row = size(im, 1);      % Nombre de ligne
 col = size(im, 2);      % Nombre de collone
 N = row * col;          % Nombre de pixel
-racine_K = 7;           % La racine du nombre de points
+racine_K = 10;          % La racine du nombre de points
 K = racine_K^2;         % Nombre de superpixel
 S = sqrt(N/K);          % Pas entre les superpixels
 max_iter = 5;           % Nombre maximum d'iteration
-m = 50;                 % Poid de la position dans le calcul de la distence
+m = 0.3;                % Poid de la position dans le calcul de la distence
+n = 5;                  % Taille du carrée de recherche de gradiant pour init les centres
+
+masks = zeros(row, col, nb_images);    % Les masques binaires
+figure('Name', 'Segmentations Binaires');
+hold on;
 
 % Boucle sur les images a afficher
 for current_plot = 1:nb_images_plot
 
     num_image = num_images(current_plot);
-    subplot(nb_row_plot,nb_col_plot,current_plot);
-    imshow(im(:,:,:,num_image));
-    title(sprintf('Image %d',num_image));
-    hold on;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Calculs des superpixels                                 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
     % Initializer les positions des centres
-    centers = init_centers(racine_K, K, im, num_image);
+    centers = init_centers(racine_K, K, im, num_image, n);
 
     iter = 1;
-    
     arret = false;
     
     while ~arret
@@ -159,12 +56,6 @@ for current_plot = 1:nb_images_plot
         arret = iter > max_iter || isequal(new_centers, centers);
         iter = iter + 1;
         centers = new_centers;
-    
-        % Afficher les centres et les superpixels
-        imshow(im(:,:,:,num_image));
-        scatter(centers(:, 2), centers(:, 1), 'g', 'filled');
-        contour(labels, 1:K, 'LineColor', 'g', 'LineWidth', 0.5);
-        pause(pause_time);
             
     end
 
@@ -179,22 +70,37 @@ for current_plot = 1:nb_images_plot
             bin(labels == k) = 255;
         end
     end
-    imshow(bin)
-    pause(pause_time);
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% Extraction du squelette                                 %
+% Renforcement de la connectivité du masque               %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    [boundary,vertices,skeleton] = skeleton_extraction(bin);
-    plot(boundary(:,2), boundary(:,1), 'g', 'LineWidth', 1);
-    scatter(vertices(:,2), vertices(:,1), 'm', '.');
-    plot(skeleton(:,2), skeleton(:,1), 'b', 'LineWidth', 1);
 
-    hold off;
+    cc = bwconncomp(bin == 255);
+    numPixels = cellfun(@numel, cc.PixelIdxList);
+    [~, idx_region_dino] = max(numPixels);
+    
+    % Créer un masque pour cette région
+    region_dino = zeros(size(masque));
+    region_dino(cc.PixelIdxList{idx_region_dino}) = 1;
+
+    % Remplacer les pixels à l'intérieur de cette région par 255
+    masque_modifie = masque;
+    masque_modifie(region_255 == 1 & masque == 0) = 255;
+    
+    % Afficher l'image modifiée
+    imshow(bin_processed);
+    pause(2);
+
+    masks(:,:,current_plot) = bin;
+    %imshow(bin);
+    clc;
+    fprintf('%d / %d\n', current_plot, nb_images_plot);
+    
 end
 
+hold off;
 
-
+save('masks.mat', 'masks');
 
 
 

@@ -71,8 +71,28 @@ for current_plot = 1:nb_images_plot
         end
     end
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Renforcement de la connectivité du masque               %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+    cc = bwconncomp(bin == 255);
+    numPixels = cellfun(@numel, cc.PixelIdxList);
+    [~, idx_region_dino] = max(numPixels);
+    
+    % Créer un masque pour la région principale
+    region_dino = zeros(size(bin));
+    region_dino(cc.PixelIdxList{idx_region_dino}) = 1;
+
+    % Remplacer les pixels à l'intérieur de cette région par 255
+    new_bin = bin;
+    new_bin(region_dino == 1 & bin == 0) = 255;
+    
+    % Afficher l'image modifiée
+    imshow(new_bin);
+    pause(2);
+
     masks(:,:,current_plot) = bin;
-    imshow(bin);
+    %imshow(bin);
     clc;
     fprintf('%d / %d\n', current_plot, nb_images_plot);
     
