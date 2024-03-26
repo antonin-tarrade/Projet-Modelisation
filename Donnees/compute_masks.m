@@ -25,7 +25,8 @@ racine_K = 10;          % La racine du nombre de points
 K = racine_K^2;         % Nombre de superpixel
 S = sqrt(N/K);          % Pas entre les superpixels
 max_iter = 5;           % Nombre maximum d'iteration
-m = 0.5;                % Poid de la position dans le calcul de la distence
+m = 0.3;                % Poid de la position dans le calcul de la distence
+n = 5;                  % Taille du carrée de recherche de gradiant pour init les centres
 
 masks = zeros(row, col, nb_images);    % Les masques binaires
 figure('Name', 'Segmentations Binaires');
@@ -41,7 +42,7 @@ for current_plot = 1:nb_images_plot
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
     % Initializer les positions des centres
-    centers = init_centers(racine_K, K, im, num_image);
+    centers = init_centers(racine_K, K, im, num_image, n);
 
     iter = 1;
     arret = false;
@@ -65,7 +66,7 @@ for current_plot = 1:nb_images_plot
     for k = 1:K
         r = centers(k, 3);
         b = centers(k, 5);
-        if r > b && r > 30
+        if r > b
             bin(labels == k) = 255;
         end
     end

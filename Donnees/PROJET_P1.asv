@@ -25,7 +25,7 @@ for i = 1:nb_images
 end
 
 
-%% P0 - Affichage des images %%
+%% Affichage des images %%
 num_images = [1, 9, 17, 25];                % Numéro des images à afficher
 nb_row_plot = 2;                            % Nombre de lignes pour l'affichage
 nb_col_plot = 2;                            % Nombre de colones pour l'affichage
@@ -52,7 +52,8 @@ racine_K = 7;           % La racine du nombre de points
 K = racine_K^2;         % Nombre de superpixel
 S = sqrt(N/K);          % Pas entre les superpixels
 max_iter = 5;           % Nombre maximum d'iteration
-m = 50;                 % Poid de la position dans le calcul de la distence
+m = 100;                % Poid de la position dans le calcul de la distence
+n = 3;                  % Taille du carrée de recherche de gradiant pour init les centres
 
 % Boucle sur les images a afficher
 for current_plot = 1:nb_images_plot
@@ -69,6 +70,8 @@ for current_plot = 1:nb_images_plot
 
     % Initializer les positions des centres
     centers = init_centers(racine_K, K, im, num_image);
+    scatter(centers(:, 2), centers(:, 1), 'g', 'filled');
+    pause(1);
 
     iter = 1;
     
@@ -91,6 +94,11 @@ for current_plot = 1:nb_images_plot
         pause(pause_time);
             
     end
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Renforcement de la connectivité des régions             %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Binarisation de l'image à partir des superpixels        %

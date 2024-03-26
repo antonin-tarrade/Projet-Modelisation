@@ -52,7 +52,8 @@ racine_K = 7;           % La racine du nombre de points
 K = racine_K^2;         % Nombre de superpixel
 S = sqrt(N/K);          % Pas entre les superpixels
 max_iter = 5;           % Nombre maximum d'iteration
-m = 50;                 % Poid de la position dans le calcul de la distence
+m = 100;                % Poid de la position dans le calcul de la distence
+n = 10;                 % Taille du carrée de recherche de gradiant pour init les centres
 
 % Boucle sur les images a afficher
 for current_plot = 1:nb_images_plot
@@ -68,10 +69,11 @@ for current_plot = 1:nb_images_plot
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
     % Initializer les positions des centres
-    centers = init_centers(racine_K, K, im, num_image);
+    centers = init_centers(racine_K, K, im, num_image, n);
+    scatter(centers(:, 2), centers(:, 1), 'g', 'filled');
+    pause(1);
 
     iter = 1;
-    
     arret = false;
     
     while ~arret
@@ -93,6 +95,11 @@ for current_plot = 1:nb_images_plot
     end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Renforcement de la connectivité des régions             %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Binarisation de l'image à partir des superpixels        %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     bin = zeros(row, col);
@@ -104,15 +111,21 @@ for current_plot = 1:nb_images_plot
         end
     end
     imshow(bin)
-    pause(pause_time);
+    pause(1);
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Extraction du squelette                                 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     [boundary,vertices,skeleton] = skeleton_extraction(bin);
+
     plot(boundary(:,2), boundary(:,1), 'g', 'LineWidth', 1);
     scatter(vertices(:,2), vertices(:,1), 'm', '.');
     plot(skeleton(:,2), skeleton(:,1), 'b', 'LineWidth', 1);
+    pause(1);
+
+    imshow(bin)
+    % plot(skeleton_int(:,2), skeleton_int(:,1), 'b', 'LineWidth', 1);
+    pause(1);
 
     hold off;
 end

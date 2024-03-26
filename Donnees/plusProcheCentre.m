@@ -19,7 +19,7 @@ function [labels, new_centers] = plusProcheCentre(S, m, im, num_image, K, center
             for k = 1:K
                 % Calcul de la distance au centre
                 dist_xy = sqrt((x-centers(k,1))^2 + (y-centers(k,2))^2);
-                if dist_xy < 3 * S      % Cherhcer dans un rayon de 2*S
+                if dist_xy < 5 * S      % Cherhcer dans un rayon de 2*S
                     dist_rgb = 0;
                     for c = 1:3
                         color = im(floor(centers(k,1)), floor(centers(k,2)), c, num_image);
@@ -48,9 +48,7 @@ function [labels, new_centers] = plusProcheCentre(S, m, im, num_image, K, center
         if num_elements > 0
             new_centers(k, :) = new_centers(k, :) / num_elements;
         end
-    end
-    
-    
+    end    
 
 end
 
