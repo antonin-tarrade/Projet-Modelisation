@@ -20,15 +20,14 @@ function [contour,voronoi_vertices,skeleton] = skeleton_extraction(img_binaire)
     [V, R] = voronoiDiagram(dt);
     V = flip(V,2);
 
-     V_final = sort_position(img_binaire,V);
+     V_final = sort_position(img_binaire,V,contour);
      voronoi_vertices = V_final;
      
     n_region = size(R,1);
     edges_sorted = [];
     for i = 1:n_region
         indices = R{i};  
-        edges = sort_position(img_binaire,V(indices,:));
-%       plot(edges(:,2),edges(:,1),'blue');
+        edges = sort_position(img_binaire,V(indices,:),contour);
         edges_sorted = [edges_sorted; edges];
     end
 
@@ -36,7 +35,7 @@ function [contour,voronoi_vertices,skeleton] = skeleton_extraction(img_binaire)
 
 end
 
-function position_sorted = sort_position(img_binaire,positions)
+function position_sorted = sort_position(img_binaire,positions,contour)
     n = size(positions,1);
     [nb_row,nb_col] = size(img_binaire);
     mask = repmat(zeros(n,1),1,2);
@@ -48,7 +47,7 @@ function position_sorted = sort_position(img_binaire,positions)
         if x > nb_row || y > nb_col || x <= 0 || y <= 0
             mask(i,:) = 0;
         else
-            mask(i,:) = img_binaire(x,y)~= 0;
+            mask(i,:) = img_binaire(x,y)~= 0 && ~ismember([x y],contour,'rows');
         end
     end
 

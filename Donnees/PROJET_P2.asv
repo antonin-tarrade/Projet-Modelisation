@@ -163,8 +163,7 @@ end
 
 tri(~centers_by_img',:)= [];
 
-% A DECOMMENTER POUR AFFICHER LE MAILLAGE RESULTAT
-% Affichage des tetraedres restants
+%% 5 - Affichage des tetraedres restants
 fprintf('Retrait des tetraedres exterieurs a la forme 3D termine : %d tetraedres restants. \n',size(tri,1));
 figure;
 trisurf(tri,X(1,:),X(2,:),X(3,:));

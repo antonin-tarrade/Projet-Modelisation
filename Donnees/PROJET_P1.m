@@ -106,6 +106,7 @@ for current_plot = 1:nb_images_plot
             bin(labels == k) = 255;
         end
     end
+    
     imshow(bin)
     pause(1);
 
@@ -119,8 +120,6 @@ for current_plot = 1:nb_images_plot
     scatter(vertices(:,2), vertices(:,1), 'm', '.');
     plot(skeleton(:,2), skeleton(:,1), 'b', 'LineWidth', 1);
     pause(1);
-    
-
     hold off;
 end
 
