@@ -125,7 +125,8 @@ tri = T.Triangulation;
 
 % matrice binaire representant la presence du projete des barycentre sur au
 % moins un des masques pour au moins un des poids
-centers_in = false(1,size(tri,1)); 
+centers_by_weight = true(1,size(tri,1)); 
+centers_by_img = true(1,size(tri,1));
 figure;
 for i = 1:nb_images
    mask = masks(:,:,i);
@@ -146,20 +147,21 @@ for i = 1:nb_images
        visualisation = logical(mask(indices)); 
        
        % mise a jour par reduction des presences des barycentres
-       centers_in(~out_of_range_indices) = centers_in(~out_of_range_indices) | visualisation;
+       centers_by_weight(~out_of_range_indices) = centers_by_weight(~out_of_range_indices) & visualisation;
    
        % Visualisation pour vérifier le bon calcul des barycentres
        imshow(mask); 
        hold on;
        plot(o(2,~visualisation),o(1,~visualisation),'rx');
        plot(o(2,visualisation),o(1,visualisation),'gx');
-       pause(0.1)
+       pause(0.001)
    end
-   hold off;
+   hold off; 
+   centers_by_img = centers_by_img & centers_by_weight;
    pause(0.1);
 end
 
-tri(~centers_in',:)= [];
+tri(~centers_by_img',:)= [];
 
 % A DECOMMENTER POUR AFFICHER LE MAILLAGE RESULTAT
 % Affichage des tetraedres restants
