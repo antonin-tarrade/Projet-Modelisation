@@ -114,11 +114,11 @@ for current_plot = 1:nb_images_plot
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Extraction du squelette                                 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    [boundary,vertices,skeleton] = skeleton_extraction(bin);
+    [boundary,vertices,sorted_vertices,skeleton] = skeleton_extraction_v2(bin);
 
     plot(boundary(:,2), boundary(:,1), 'g', 'LineWidth', 1);
-    scatter(vertices(:,2), vertices(:,1), 'm', '.');
-    plot(skeleton(:,2), skeleton(:,1), 'b', 'LineWidth', 1);
+    scatter(sorted_vertices(:,2), sorted_vertices(:,1), 'm', '.');
+    gplot(skeleton,[vertices(:,2),vertices(:,1)],'b');
     pause(1);
     hold off;
 end

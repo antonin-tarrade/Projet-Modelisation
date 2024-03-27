@@ -12,7 +12,7 @@ for i=1:nb_row
     end
 end
 
-[contour,vertex,squelette] = skeleton_extraction(img_binaire);
+[contour,vertex,squelette] = skeleton_extraction_v2(img_binaire);
 
 function val = adjust(gray_scale)
     [~,ind] = min ([gray_scale 255-gray_scale]);

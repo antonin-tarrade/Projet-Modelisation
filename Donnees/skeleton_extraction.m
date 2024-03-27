@@ -9,11 +9,8 @@ function [contour,voronoi_vertices,skeleton] = skeleton_extraction(img_binaire)
 %    l'image initiale
 
     P = get_initial_point(img_binaire);
-%     figure;
-%     imshow(img_binaire);
-%     hold on;
     
-    contour = bwtraceboundary(img_binaire,P,"N",4);
+    contour = bwtraceboundary(img_binaire,P,"N",8);
 
     dt = delaunayTriangulation(contour(:,2),contour(:,1));
     
@@ -25,6 +22,7 @@ function [contour,voronoi_vertices,skeleton] = skeleton_extraction(img_binaire)
      
     n_region = size(R,1);
     edges_sorted = [];
+    
     for i = 1:n_region
         indices = R{i};  
         edges = sort_position(img_binaire,V(indices,:),contour);
