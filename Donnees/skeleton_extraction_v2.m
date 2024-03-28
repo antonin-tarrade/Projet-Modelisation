@@ -42,14 +42,7 @@ function [contour,vertices,sorted_vertices,skeleton] = skeleton_extraction_v2(im
             end
             
         end    
-        % figure;
-        % imshow(img_binaire)
-        % hold on;
-        % plot(contour(:,2), contour(:,1), 'g', 'LineWidth', 1);
-        % scatter(V_sorted(:,2), V_sorted(:,1), 'm', '.');
-        % gplot(adjacence,[V(:,2),V(:,1)],'b');
-        % hold off;
-    
+
         vertices = V;
         sorted_vertices = V_sorted;
         skeleton = adjacence;
