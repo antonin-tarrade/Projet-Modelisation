@@ -52,7 +52,7 @@ racine_K = 7;           % La racine du nombre de points
 K = racine_K^2;         % Nombre de superpixel
 S = sqrt(N/K);          % Pas entre les superpixels
 max_iter = 5;           % Nombre maximum d'iteration
-m = 100;                % Poid de la position dans le calcul de la distence
+m = 10;                 % Poids de la position dans le calcul de la distence
 n = 10;                 % Taille du carrée de recherche de gradiant pour init les centres
 
 % Boucle sur les images a afficher
@@ -70,7 +70,7 @@ for current_plot = 1:nb_images_plot
 
     % Initializer les positions des centres
     centers = init_centers(racine_K, K, im, num_image, n);
-    scatter(centers(:, 2), centers(:, 1), 'g', 'filled');
+    scatter(centers(:, 2), centers(:, 1), 'r', 'filled');
     pause(1);
 
     iter = 1;
@@ -88,7 +88,7 @@ for current_plot = 1:nb_images_plot
     
         % Afficher les centres et les superpixels
         imshow(im(:,:,:,num_image));
-        scatter(centers(:, 2), centers(:, 1), 'g', 'filled');
+        scatter(centers(:, 2), centers(:, 1), 'r', 'filled');
         contour(labels, 1:K, 'LineColor', 'g', 'LineWidth', 0.5);
         pause(pause_time);
             
@@ -117,7 +117,7 @@ for current_plot = 1:nb_images_plot
     [boundary,vertices,sorted_vertices,skeleton] = skeleton_extraction_v2(bin);
 
     plot(boundary(:,2), boundary(:,1), 'g', 'LineWidth', 1);
-    scatter(sorted_vertices(:,2), sorted_vertices(:,1), 'm', '.');
+%     scatter(sorted_vertices(:,2), sorted_vertices(:,1), 'm', '.');
     gplot(skeleton,[vertices(:,2),vertices(:,1)],'b');
     pause(1);
     hold off;

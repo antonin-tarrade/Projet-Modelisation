@@ -12,6 +12,8 @@ function [contour,vertices,sorted_vertices,skeleton] = skeleton_extraction_v2(im
         P = get_initial_point(img_binaire);
         
         contour = bwtraceboundary(img_binaire,P,"N",8);
+
+        contour = smoothdata(contour, 'gaussian', 15);
            
         [V,C] = voronoin(unique(contour,'rows'));
 
@@ -19,14 +21,13 @@ function [contour,vertices,sorted_vertices,skeleton] = skeleton_extraction_v2(im
         inside_indices = V(:,1) >= 1 & V(:,1) <= nb_rows & V(:,2) >= 1 & V(:,2) <= nb_cols;
         V_inside = V(inside_indices,:);
 
-
         % On ne garde que les sommets compris dans le contour
         mask = roipoly(img_binaire,contour(:,2),contour(:,1));
         indices = sub2ind(size(mask),round(V_inside(:,1)),round(V_inside(:,2)));
         inside_dino = mask(indices);
         V_sorted = V_inside(inside_dino,:);
     
-      % Creation de la matrice d'adjacence
+        % Creation de la matrice d'adjacence
         adjacence = zeros(size(V,1));
         for i=1:size(C,1)
             cells = C(i);
