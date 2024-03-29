@@ -4,9 +4,6 @@ Nous avons constaté pendant l'oral de mardi que l'estimation de l'axe médian n
 
 Nous avons donc complétement repris le script d'estimation de l'axe médian (voir fonction `skeleton_extraction_v2.m`) et cette fois-ci estimé l'axe médian en suivant l'énoncé du TP, c'est à dire via une matrice d'adjacence. Les résultats sont satisfaisant et aucun cycle n'est présent. De plus, nous avons adoussis les contours pour avoir un résultat plus propre.
 
-## Voies d'amélioration
-Comme vu précedemment, l'axe médian n'est toujours pas parfait. En effet, on constate de nombreuses pérturbations dû aux bordures pixélisées de l'image binaire. Pour pouvoir y remedier, il serait donc possible de lisser l'image, par exemple avec un flou gaussien, ou encore avec des techniques d'érosions et de dilatations. 
-
 
 ## A quoi correspondent les scripts et fonctions.
 ### Scripts : 

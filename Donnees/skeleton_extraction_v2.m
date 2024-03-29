@@ -13,7 +13,7 @@ function [contour,vertices,sorted_vertices,skeleton] = skeleton_extraction_v2(im
         
         contour = bwtraceboundary(img_binaire,P,"N",8);
 
-        contour = smoothdata(contour, 'gaussian', 15);
+        contour = smoothdata(contour, 'gaussian', 20);
            
         [V,C] = voronoin(unique(contour,'rows'));
 

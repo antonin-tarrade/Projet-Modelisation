@@ -1,5 +1,5 @@
 function P = get_initial_point(img_binaire)
-%function GET_INITIAL_POINT
+% function GET_INITIAL_POINT
 % Fonction permettant de trouver un point initial pour pouvoir calculer le contour. 
 % Dans cette version on prend le premier point se trouvant sur la ligne du milieu
 [nb_row, nb_col] = size(img_binaire);

@@ -31,7 +31,7 @@ function [x, y, r, g, b] = find_min_gradient(im, num_image, x_center, y_center, 
     
     for i = max(1, x_center - floor(n/2)):min(row, x_center + floor(n/2))
         for j = max(1, y_center - floor(n/2)):min(col, y_center + floor(n/2))
-            % Compute the gradient magnitude (you can adjust this calculation as per your requirement)
+            % Calcul du gradiant
             gradient = compute_gradient(im, i, j, num_image);
             if gradient < min_gradient
                 min_gradient = gradient;
@@ -40,8 +40,7 @@ function [x, y, r, g, b] = find_min_gradient(im, num_image, x_center, y_center, 
             end
         end
     end
-    
-    % Get the color values at the location with the minimum gradient
+
     r = double(im(min_x, min_y, 1, num_image));
     g = double(im(min_x, min_y, 2, num_image));
     b = double(im(min_x, min_y, 3, num_image));
@@ -51,15 +50,13 @@ end
 
 
 function gradient = compute_gradient(im, x, y, num_image)
-    % Sobel Operator for gradient calculation
+    % Operateur de Sobel
     sobel_x = [-1 0 1; -2 0 2; -1 0 1];
     sobel_y = [-1 -2 -1; 0 0 0; 1 2 1];
     
-    % Calculate gradients in x and y directions using Sobel operators
     gradient_x = sum(sum(sobel_x .* double(im(x-1:x+1, y-1:y+1, 1, num_image))));
     gradient_y = sum(sum(sobel_y .* double(im(x-1:x+1, y-1:y+1, 1, num_image))));
     
-    % Compute gradient magnitude
     gradient = sqrt(gradient_x^2 + gradient_y^2);
 end
 
